@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VALORANT-WEB</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Main Menu -->
+    <div id="main-menu" class="screen active">
+      <div class="logo">VALORANT<span class="red">-WEB</span></div>
+      <div class="menu-buttons">
+        <button id="btn-play" class="menu-btn">PLAY</button>
+        <button id="btn-settings" class="menu-btn">SETTINGS</button>
+        <button id="btn-quit" class="menu-btn disabled">QUIT</button>
+      </div>
+    </div>
+
+    <!-- Lobby Screen -->
+    <div id="lobby-screen" class="screen">
+      <h2>LOBBY</h2>
+      <div class="room-list-container">
+        <table id="room-list">
+          <thead>
+            <tr>
+              <th>Room Name</th>
+              <th>Map</th>
+              <th>Players</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <button id="btn-create-room" class="action-btn">CREATE ROOM</button>
+      <button id="btn-back-menu" class="action-btn secondary">BACK</button>
+    </div>
+
+    <!-- Create Room Modal -->
+    <div id="create-room-modal" class="modal hidden">
+      <div class="modal-content">
+        <h3>Create Room</h3>
+        <label>Room Name: <input type="text" id="room-name" value="My Room" /></label>
+        <label>Map: 
+          <select id="room-map">
+            <option value="ascent">Ascent</option>
+            <option value="bind">Bind</option>
+            <option value="haven">Haven</option>
+          </select>
+        </label>
+        <label>Max Players: 
+          <select id="room-max-players">
+            <option value="2">2</option>
+            <option value="4">4</option>
+            <option value="6">6</option>
+            <option value="8">8</option>
+            <option value="10" selected>10</option>
+          </select>
+        </label>
+        <div class="modal-buttons">
+          <button id="btn-confirm-create" class="action-btn">CONFIRM</button>
+          <button id="btn-cancel-create" class="action-btn secondary">CANCEL</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent Select Screen -->
+    <div id="agent-select-screen" class="screen">
+      <div class="agent-select-header">
+        <h2>SELECT AGENT</h2>
+        <div class="timer" id="agent-timer">60</div>
+      </div>
+      <div class="teams-display">
+        <div class="team attackers">
+          <h3>ATTACKERS</h3>
+          <div class="agent-slots" id="atk-slots"></div>
+        </div>
+        <div class="team defenders">
+          <h3>DEFENDERS</h3>
+          <div class="agent-slots" id="def-slots"></div>
+        </div>
+      </div>
+      <div class="agent-grid" id="agent-grid"></div>
+      <button id="btn-lock-agent" class="action-btn" disabled>LOCK IN</button>
+    </div>
+
+    <!-- Game Canvas Container -->
+    <div id="game-container" class="hidden">
+      <canvas id="game-canvas"></canvas>
+      
+      <!-- HUD Elements -->
+      <div id="hud-top-center">
+        <div class="score-display">
+          <span class="atk-score" id="score-atk">0</span>
+          <span class="vs">-</span>
+          <span class="def-score" id="score-def">0</span>
+        </div>
+        <div class="round-info">Round <span id="round-num">1</span></div>
+        <div class="timer-display" id="round-timer">1:40</div>
+        <div class="spike-status hidden" id="spike-planted-text">⚠ SPIKE PLANTED ⚠</div>
+        <div class="spike-timer hidden" id="spike-timer">45.0</div>
+      </div>
+
+      <div id="hud-top-left">
+        <div class="team-panel" id="team-panel-atk"></div>
+        <div class="team-panel" id="team-panel-def"></div>
+      </div>
+
+      <div id="hud-top-right">
+        <div class="kill-feed" id="kill-feed"></div>
+      </div>
+
+      <div id="hud-bottom-left">
+        <div class="ability-slot" data-key="C">
+          <div class="ability-key">C</div>
+          <div class="ability-name" id="ability-c-name">--</div>
+          <div class="ability-cost" id="ability-c-cost">--</div>
+          <div class="cooldown-overlay" id="cooldown-c"></div>
+        </div>
+        <div class="ability-slot" data-key="Q">
+          <div class="ability-key">Q</div>
+          <div class="ability-name" id="ability-q-name">--</div>
+          <div class="ability-cost" id="ability-q-cost">--</div>
+          <div class="cooldown-overlay" id="cooldown-q"></div>
+        </div>
+        <div class="ability-slot" data-key="E">
+          <div class="ability-key">E</div>
+          <div class="ability-name" id="ability-e-name">--</div>
+          <div class="ability-cost" id="ability-e-cost">--</div>
+          <div class="cooldown-overlay" id="cooldown-e"></div>
+        </div>
+        <div class="ability-slot" data-key="X">
+          <div class="ability-key">X</div>
+          <div class="ability-name" id="ability-x-name">--</div>
+          <div class="ability-cost" id="ability-x-cost">--</div>
+          <div class="cooldown-overlay" id="cooldown-x"></div>
+        </div>
+      </div>
+
+      <div id="hud-bottom-center">
+        <div class="weapon-display">
+          <div class="weapon-name" id="weapon-name">Classic</div>
+          <div class="ammo-display">
+            <span class="ammo-clip" id="ammo-clip">12</span>
+            <span class="ammo-sep">|</span>
+            <span class="ammo-reserve" id="ammo-reserve">36</span>
+          </div>
+          <div class="ammo-bar">
+            <div class="ammo-fill" id="ammo-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="hud-bottom-right">
+        <div class="credits-display"><span id="credits-value">0</span> ¢</div>
+        <div class="armor-display">🛡 <span id="armor-value">0</span></div>
+        <div class="hp-bar-container">
+          <div class="hp-bar">
+            <div class="hp-fill" id="hp-fill"></div>
+          </div>
+          <div class="hp-value" id="hp-value">100</div>
+        </div>
+      </div>
+
+      <div id="crosshair"></div>
+
+      <!-- Buy Menu Overlay -->
+      <div id="buy-menu" class="overlay hidden">
+        <div class="buy-menu-header">
+          <h2>BUY MENU</h2>
+          <div class="buy-credits">CREDITS: <span id="buy-credits-value">0</span> ¢</div>
+          <button id="btn-close-buy" class="close-btn">✕</button>
+          <div class="buy-timer" id="buy-timer">0:30</div>
+        </div>
+        <div class="buy-menu-body">
+          <div class="buy-categories">
+            <button class="category-btn active" data-category="sidearms">SIDEARMS</button>
+            <button class="category-btn" data-category="smgs">SMGs</button>
+            <button class="category-btn" data-category="shotguns">SHOTGUNS</button>
+            <button class="category-btn" data-category="rifles">RIFLES</button>
+            <button class="category-btn" data-category="snipers">SNIPERS</button>
+            <button class="category-btn" data-category="lmgs">LMGs</button>
+            <button class="category-btn" data-category="shields">SHIELDS</button>
+            <button class="category-btn" data-category="abilities">ABILITIES</button>
+          </div>
+          <div class="weapon-grid" id="weapon-grid"></div>
+          <div class="my-loadout">
+            <h3>MY LOADOUT</h3>
+            <div class="loadout-primary">
+              <div class="loadout-label">PRIMARY</div>
+              <div class="loadout-item" id="loadout-primary">None</div>
+            </div>
+            <div class="loadout-secondary">
+              <div class="loadout-label">SECONDARY</div>
+              <div class="loadout-item" id="loadout-secondary">Classic</div>
+            </div>
+            <div class="loadout-armor">
+              <div class="loadout-label">ARMOR</div>
+              <div class="loadout-item" id="loadout-armor">None</div>
+            </div>
+            <div class="loadout-abilities">
+              <div class="loadout-label">ABILITIES</div>
+              <div class="loadout-ability-keys">[C] [Q] [E] [X]</div>
+            </div>
+            <div class="loadout-total">TOTAL: <span id="loadout-total">0</span> ¢</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scoreboard Overlay -->
+      <div id="scoreboard" class="overlay hidden">
+        <div class="scoreboard-header">
+          <span class="map-name" id="scoreboard-map">ASCENT</span>
+          <span class="scoreboard-score">
+            <span class="atk-score" id="scoreboard-atk">0</span> - 
+            <span class="def-score" id="scoreboard-def">0</span>
+          </span>
+          <span class="scoreboard-round">Round <span id="scoreboard-round">1</span></span>
+        </div>
+        <div class="scoreboard-body">
+          <div class="scoreboard-team" id="scoreboard-atk-team">
+            <h3>ATTACKERS</h3>
+            <table>
+              <thead>
+                <tr><th>Agent</th><th>Name</th><th>ACS</th><th>K</th><th>D</th><th>A</th><th>HS%</th><th>FK</th><th>Credits</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="scoreboard-team" id="scoreboard-def-team">
+            <h3>DEFENDERS</h3>
+            <table>
+              <thead>
+                <tr><th>Agent</th><th>Name</th><th>ACS</th><th>K</th><th>D</th><th>A</th><th>HS%</th><th>FK</th><th>Credits</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Overlay -->
+      <div id="settings-menu" class="overlay hidden">
+        <div class="settings-header">
+          <h2>SETTINGS</h2>
+          <button id="btn-close-settings" class="close-btn">✕</button>
+        </div>
+        <div class="settings-body">
+          <div class="settings-section">
+            <h3>General</h3>
+            <label>Sensitivity: <input type="range" id="setting-sensitivity" min="0.1" max="5.0" step="0.1" value="1.0" /></label>
+            <label><input type="checkbox" id="setting-fps-counter" /> Show FPS Counter</label>
+          </div>
+          <div class="settings-section">
+            <h3>Video</h3>
+            <label>Quality: 
+              <select id="setting-quality">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </label>
+            <label>FOV: <input type="range" id="setting-fov" min="80" max="110" step="5" value="90" /></label>
+          </div>
+          <div class="settings-section">
+            <h3>Audio</h3>
+            <label>Master Volume: <input type="range" id="setting-master-vol" min="0" max="100" value="80" /></label>
+            <label>SFX Volume: <input type="range" id="setting-sfx-vol" min="0" max="100" value="70" /></label>
+            <label>Voice Volume: <input type="range" id="setting-voice-vol" min="0" max="100" value="60" /></label>
+          </div>
+          <div class="settings-section">
+            <h3>Crosshair</h3>
+            <label>Style: 
+              <select id="setting-crosshair-style">
+                <option value="cross">Cross</option>
+                <option value="dot">Dot</option>
+                <option value="circle">Circle</option>
+              </select>
+            </label>
+            <label>Color: <input type="color" id="setting-crosshair-color" value="#00ff00" /></label>
+            <label>Size: <input type="range" id="setting-crosshair-size" min="1" max="10" value="4" /></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Round End Banner -->
+      <div id="round-end-banner" class="banner hidden">
+        <div class="banner-text" id="round-end-text">ROUND WON</div>
+      </div>
+
+      <!-- Match End Screen -->
+      <div id="match-end-screen" class="screen hidden">
+        <h2 id="match-end-title">VICTORY</h2>
+        <div class="final-score">
+          <span class="atk-score" id="final-atk">0</span> - <span class="def-score" id="final-def">0</span>
+        </div>
+        <button id="btn-back-lobby" class="action-btn">BACK TO LOBBY</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
