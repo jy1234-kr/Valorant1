@@ -22,6 +22,10 @@ target/
 # Logs
 *.log
 
+valorant-inspired-fps-game-4889b
+# Package lock file (already in your changes)
+package-lock.json
+
 # Python cache (if any Python files exist)
 __pycache__/
 *.pyc
@@ -60,4 +64,5 @@ htmlcov/
 # System files
 .DS_Store
 Thumbs.db
+main
 ```
